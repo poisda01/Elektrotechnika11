@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Základní pojmy</title>
+
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="topic.css">
+<link rel="icon" href="IMG/logo.png">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+
+<body>
+
+<header>Elektrotechnika 2 – Základní pojmy</header>
+
+<main class="topic">
+
+<section class="card">
+  <h2>Teorie</h2>
+  
+<p>Střídavé napětí je takové elektrické napětí, jehož velikost a směr se v čase periodicky mění. 
+Na rozdíl od stejnosměrného napětí nemá stálou hodnotu ani stálou polaritu. V průběhu času se mění od kladných hodnot přes nulu až do záporných hodnot. </p>
+<p>Nejčastěji se setkáváme se sinusovým střídavým napětím, které má pravidelný a plynulý průběh. 
+Tento typ napětí se používá například v elektrické síti, kde je jeho efektivní hodnota 230 V a frekvence 50 Hz.</p>
+<p>Střídavé napětí má zásadní význam v elektrotechnice, protože:</p>
+<p>- lze jej snadno transformovat na jiné napěťové úrovně</p>
+<p>- umožňuje efektivní přenos elektrické energie na velké vzdálenosti</p>
+<p>- je vhodné pro napájení většiny elektrických zařízení</p>
+<p>Střídavé napětí je charakterizováno několika základními veličinami:</p>
+<p><strong>Frekvence</strong> udává, kolikrát se periodický signál opakujeme za jednu sekundu. Značí se symbolem f a její jednotkou je hertz (Hz).
+souvisí s periodou signálu vztahem:</p>
+  <img src="IMG/FREQ.png" style="width: 9.5%;">
+<p><strong>Perioda</strong> je doba, za kterou se průběh signálu jednou celý zopakuje. Značí se symbolem T a její jednotkou je sekunda (s).</p>
+<p><strong>Amplituda</strong> je maximální okamžitá hodnota střídavého napětí nebo proudu, které signál dosahuje. Určuje „výšku“ průběhu signálu od nulové hodnoty k jeho maximální hodnotě. Neříká však přímo nic o výkonu nebo energetickém účinku signálu.</p>
+<p><strong>Maximální napětí</strong> U𝑚𝑎𝑥 je největší okamžitá hodnota napětí během jedné periody. U sinusového průběhu odpovídá špičce sinusové křivky.</p>
+<p><strong>Efektivní hodnota napětí</strong> je taková hodnota stejnosměrného napětí, která by na daném odporu vyvolala stejný výkon jako dané střídavé napětí. Značí se U𝑒𝑓
+ nebo U𝑅𝑀𝑆. Pro sinusový průběh platí vztah:</p>
+  <img src="IMG/UEF.png" style="width: 14%;">
+  <p><strong>Časový průběh střídavého napětí </strong>popisuje, jak se napětí mění v závislosti na čase. 
+  U sinusového průběhu lze okamžitou hodnotu napětí vyjádřit vztahem:</p>
+  <img src="IMG/U(T).png" style="width: 25%;">
+
+<section class="card">
+  <h2>Průběh okamžitého střídavého napětí</h2>
+
+  <div class="form-group">
+  <!-- vypočítané hodnoty -->
+  <input type="number" id="umax" placeholder="Umax (V)">
+  <input type="number" id="freq" placeholder="Frekvence f (Hz)">
+  <input type="number" id="period" placeholder="Perioda T (s)" readonly>
+  <input type="number" id="uef" placeholder="Efektivní napětí Uef (V)" readonly>
+  </div>
+
+  <button onclick="drawAC()">Spočítat</button>
+
+  <canvas id="acChart"></canvas>
+</section>
+</section>
+<script>
+let acChart = null;
+
+function drawAC() {
+  const Umax = parseFloat(document.getElementById("umax").value);
+  const f = parseFloat(document.getElementById("freq").value);
+
+  if (isNaN(Umax) || isNaN(f) || Umax <= 0 || f <= 0) {
+    alert("Zadejte platné hodnoty Umax a f!");
+    return;
+  }
+
+  const T = 1 / f;
+  const Uef = Umax / Math.sqrt(2);
+
+  document.getElementById("period").value = T.toFixed(5);
+  document.getElementById("uef").value = Uef.toFixed(2);
+
+  const sinus = [];
+  const plusUmax = [];
+  const minusUmax = [];
+  const plusUef = [];
+  const minusUef = [];
+
+  for (let t = 0; t <= 2 * T; t += T / 200) {
+    const u = Umax * Math.sin(2 * Math.PI * f * t);
+
+    sinus.push({ x: t, y: u });
+    plusUmax.push({ x: t, y: Umax });
+    minusUmax.push({ x: t, y: -Umax });
+    plusUef.push({ x: t, y: Uef });
+    minusUef.push({ x: t, y: -Uef });
+  }
+
+  if (acChart) acChart.destroy();
+
+  acChart = new Chart(document.getElementById("acChart"), {
+    type: "line",
+    data: {
+      datasets: [
+        {
+          label: "u(t)",
+          data: sinus,
+          borderColor: "blue",
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.2
+        },
+        {
+          label: "+Umax",
+          data: plusUmax,
+          borderColor: "red",
+          borderDash: [5,5],
+          pointRadius: 0
+        },
+        {
+          label: "−Umax",
+          data: minusUmax,
+          borderColor: "red",
+          borderDash: [5,5],
+          pointRadius: 0
+        },
+        {
+          label: "+Uef",
+          data: plusUef,
+          borderColor: "green",
+          borderDash: [3,3],
+          pointRadius: 0
+        },
+        {
+          label: "−Uef",
+          data: minusUef,
+          borderColor: "green",
+          borderDash: [3,3],
+          pointRadius: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            title: () => "",
+            label: ctx =>
+              `t = ${ctx.parsed.x.toFixed(4)} s, u = ${ctx.parsed.y.toFixed(2)} V`
+          }
+        },
+        legend: {
+          position: "bottom"
+        }
+      },
+      scales: {
+        x: {
+          type: "linear",
+          title: { display: true, text: "čas t [s]" }
+        },
+        y: {
+          title: { display: true, text: "napětí u(t) [V]" }
+        }
+      }
+    }
+  });
+}
+</script>
+
+
+</body>
+</html>

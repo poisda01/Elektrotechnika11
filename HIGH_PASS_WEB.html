@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horní propust</title>
+
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="topic.css">
+<link rel="icon" href="IMG/logo.png">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+
+<body>
+
+<header>Elektrotechnika 2 – Horní propust</header>
+
+<main class="topic">
+
+<section class="card">
+  <h2>Teorie</h2>
+  <p>
+    Horní propust je elektrický filtr, který propouští signály o vyšších frekvencích a potlačuje signály o nízkých frekvencích.
+    Jejím hlavním úkolem je odstranit nežádoucí nízkofrekvenční složky signálu, například stejnosměrnou složku nebo nízkofrekvenční rušení.
+  </p>
+  <p>Základní RC horní propust je tvořena odporem R a kondenzátorem C. V tomto zapojení využíváme vlastností kondenzátoru, jehož impedance závisí na frekvenci.
+    Pro nízké frekvence klade kondenzátor vysoký odpor, a proto jsou tyto složky signálu tlumeny. 
+    Naopak při vyšších frekvencích se impedance kondenzátoru zmenšuje a signál může procházet na výstup obvodu
+  </p>
+  <p>Důležitým parametrem horní propusti je mezní frekvence 𝑓𝑐. Při této frekvenci klesne amplituda výstupního napětí na přibližně 70,7 % vstupní hodnoty, 
+  což odpovídá zesílení −3 dB. Mezní frekvence je dána vztahem:
+  </p>
+  <img src="IMG/MEZ_F.png" style="width: 12%;">
+  <p>
+  Horní propusti se běžně používají například v audiotechnice, kde slouží k oddělení nízkých frekvencí, v měřicí technice k potlačení rušení nebo v elektronických zesilovačích k odstranění stejnosměrné složky signálu. 
+  Často se s nimi setkáme také při zpracování signálů a v analogových filtrech.
+  </p>
+  <p>V praxi se výrazně častěji používají RC horní propusti než RL horní propusti. Hlavním důvodem je jejich jednodušší konstrukce, menší rozměry a nižší cena.
+   Rezistory a kondenzátory jsou běžné součástky, které lze snadno integrovat do elektronických obvodů. Naopak cívky používané v RL
+   propustech jsou objemnější, dražší a mohou vytvářet magnetické rušení. Z těchto důvodů jsou RC propusti vhodnější pro signálovou elektroniku a výuku základních principů filtrů.
+  </p>
+    <img src="IMG/HIGH_PASS.png" style="width: 40%;">
+</section>
+
+<section class="card">
+  <h2>Výpočet</h2>
+
+  <div class="form-group">
+    <input type="number" id="resistor" placeholder="R (Ω)">
+    <input type="number" id="capacitor" placeholder="C (µF)">
+    <input type="number" id="vin" placeholder="U vstupní (V)">
+    <input type="number" id="fc" placeholder="Mezní frekvence fₙ (Hz)" readonly>
+    <input type="number" id="vout" placeholder="U výstupní (V)" readonly>
+    <input type="number" id="gain" placeholder="Zesílení Aᵤ (dB)" readonly>
+  </div>
+
+  <button onclick="calculate()">Spočítat</button>
+
+  <p id="result"></p>
+</section>
+
+<section class="card">
+  <h2>Grafy</h2>
+  <canvas id="ampChart" height="300"></canvas>
+  <canvas id="gainChart" height="300"></canvas>
+</section>
+
+</main>
+
+<script>
+let chartAmp = null;
+let chartDB = null;
+
+function calculate() {
+  const R = parseFloat(document.getElementById('resistor').value);
+  const Cmicro = parseFloat(document.getElementById('capacitor').value);
+  const Vin = parseFloat(document.getElementById('vin').value);
+
+  if (isNaN(R) || isNaN(Cmicro) || isNaN(Vin) || R <= 0 || Cmicro <= 0 || Vin <= 0) {
+    alert("Zadejte platné hodnoty R, C a U!");
+    return;
+  }
+
+  const C = Cmicro / 1e6;
+  const fc = 1 / (2 * Math.PI * R * C);
+
+  document.getElementById('fc').value = fc.toFixed(2);
+
+  const omega = 2 * Math.PI * fc;
+  const H = (omega * R * C) / Math.sqrt(1 + (omega * R * C) ** 2);
+  const Vout = Vin * H;
+  const Gain = 20 * Math.log10(H);
+
+  document.getElementById('vout').value = Vout.toFixed(3);
+  document.getElementById('gain').value = Gain.toFixed(2);
+
+
+  drawGraphs(R, C, Vin, fc);
+}
+
+function drawGraphs(R, C, Vin, fc) {
+  const amp = [];
+  const db = [];
+  const critAmp = [];
+  const critDB = [];
+
+  for (let f = 1; f <= 100000; f *= 1.15) {
+    const x = 2 * Math.PI * f * R * C;
+    const H = x / Math.sqrt(1 + x * x);
+
+    amp.push({ x: f, y: H * 100 });
+    db.push({ x: f, y: 20 * Math.log10(H) });
+
+    if (Math.abs(f - fc) / fc < 0.05) {
+      critAmp.push({ x: f, y: H * 100 });
+      critDB.push({ x: f, y: 20 * Math.log10(H) });
+    }
+  }
+
+  if (chartAmp) chartAmp.destroy();
+  if (chartDB) chartDB.destroy();
+
+  chartAmp = new Chart(document.getElementById('ampChart'), {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          label: 'Přenos |H| [%]',
+          data: amp,
+          borderColor: 'blue',
+          pointRadius: 0
+        },
+        {
+          label: 'Mezní frekvence',
+          data: critAmp,
+          borderColor: 'red',
+          showLine: false,
+          pointRadius: 6
+        }
+      ]
+    },
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            title: () => '',
+            label: c =>
+              `f = ${c.parsed.x.toFixed(2)} Hz, |H| = ${c.parsed.y.toFixed(2)} %`
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'logarithmic',
+          title: { display: true, text: 'Frekvence [Hz]' }
+        },
+        y: {
+          title: { display: true, text: 'Přenos [%]' }
+        }
+      }
+    }
+  });
+
+  chartDB = new Chart(document.getElementById('gainChart'), {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          label: 'Zesílení Aᵤ [dB]',
+          data: db,
+          borderColor: 'blue',
+          pointRadius: 0
+        },
+        {
+          label: 'Mezní frekvence',
+          data: critDB,
+          borderColor: 'red',
+          showLine: false,
+          pointRadius: 6
+        }
+      ]
+    },
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            title: () => '',
+            label: c =>
+              `f = ${c.parsed.x.toFixed(2)} Hz, Aᵤ = ${c.parsed.y.toFixed(2)} dB`
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'logarithmic',
+          title: { display: true, text: 'Frekvence [Hz]' }
+        },
+        y: {
+          title: { display: true, text: 'Zesílení [dB]' }
+        }
+      }
+    }
+  });
+}
+</script>
+
+</body>
+</html>

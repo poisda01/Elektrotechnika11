@@ -1,0 +1,199 @@
+/* =========================
+   ZÁKLADNÍ ROZLOŽENÍ STRÁNKY
+   ========================= */
+
+.topic {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 0 15px;
+}
+
+/* hlavní nadpis kapitoly */
+.topic h1 {
+  font-size: 32px;
+  margin-bottom: 25px;
+  color: #333;
+  text-align: left;
+}
+
+/* =========================
+   KARTY (SEKCE)
+   ========================= */
+
+.card {
+  background-color: #ffffff;
+  padding: 20px 25px;
+  margin-bottom: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* nadpis v kartě */
+.card h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 22px;
+}
+
+/* text v kartě */
+.card p {
+  margin-bottom: 8px;
+  line-height: 1.5;
+  font-size: 16px;
+  color: #555;
+}
+
+/* zvýrazněná karta – vzorce */
+.card.highlight {
+  background-color: #e8f0fe;
+  border-left: 5px solid #4169e1;
+}
+
+/* =========================
+   FORMULÁŘ – VÝPOČET
+   ========================= */
+
+.form-group {
+  margin-top: 10px;
+}
+
+/* vstupní pole */
+.form-group input {
+  display: block;
+  width: 240px;
+  padding: 7px 8px;
+  margin-bottom: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  border-radius: 4px;
+  border: 1px solid #aaa;
+  background-color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* focus efekt */
+.form-group input:focus {
+  outline: none;
+  border-color: #4169e1;
+  box-shadow: 0 0 0 2px rgba(65,105,225,0.25);
+}
+
+/* zamčená pole */
+input[readonly] {
+  background-color: #eee;
+  cursor: not-allowed;
+}
+
+/* odstranění šipek u number */
+input[type=number] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* =========================
+   TLAČÍTKO
+   ========================= */
+
+button {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 22px;
+  font-family: Arial, sans-serif;
+  font-size: 15px;
+  font-weight: bold;
+  letter-spacing: 0.3px;
+  border-radius: 5px;
+  border: none;
+  background-color: #4169e1;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+button:hover {
+  background-color: #0000ff;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+/* =========================
+   GRAFY
+   ========================= */
+
+canvas {
+  display: block;
+  margin: 25px auto;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+
+  /* šířka */
+  max-width: 100%;
+  width: 100% !important;
+
+  /* VÝŠKA – klíčová část */
+  height: 350px !important;
+}
+
+/* omezení maximální šířky grafu v kartě */
+.card canvas {
+  max-width: 850px;
+}
+
+/* =========================
+   OBRÁZKY
+   ========================= */
+
+.card img {
+  max-width: 100%;
+  display: block;
+  margin: 15px auto;
+  border-radius: 6px;
+}
+
+.img-small {
+  width: 50%;
+}
+
+.img-medium {
+  width: 70%;
+}
+
+.img-large {
+  width: 90%;
+}
+.menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  background-color: #4169e1;
+  color: white;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 15px;
+  transition: 0.3s;
+}
+
+/* hover efekt – stejný jako menu */
+.menu-btn:hover {
+  background-color: #0000ff;
+}
+
+/* malá ikona ke stažení */
+.menu-btn.download::after {
+  content: "⬇";
+  font-size: 14px;
+  opacity: 0.9;
+}
+
